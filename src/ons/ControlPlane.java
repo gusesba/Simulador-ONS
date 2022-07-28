@@ -196,6 +196,7 @@ public class ControlPlane implements ControlPlaneForRA { // RA is Routing Assign
             flow.updateHoldingTime();
             //if(flow.isIsDelayed())
                 //System.out.println("Aceita"); 
+               
             return true;
         }
     }

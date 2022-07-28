@@ -51,7 +51,6 @@ public class EON_QFDDM implements RA{
                 }
             }
         }        
-        
         return g;
     }
 
@@ -60,7 +59,7 @@ public class EON_QFDDM implements RA{
         int[] nodes;
         int[] links;
         long id;
-        LightPath[] lps = new LightPath[1];          
+        LightPath[] lps = new LightPath[1];
        /* ArrayList<Integer>[] paths = Ye nKSP.kShortestPaths(graph, flow.getSource(), flow.getDestination(), 3);
         flow.setPaths(paths);   */    
        ArrayList<Integer>[] paths = YenKSP.kDisruptedShortestPaths(cp.getPT().getWeightedGraph(), flow.getSource(), flow.getDestination(), 3);
@@ -95,6 +94,7 @@ public class EON_QFDDM implements RA{
             flow.setModulation(modulation);
             // Calculates the required slots
             int requiredSlots = Modulation.convertRateToSlot(flow.getBwReq(), EONPhysicalTopology.getSlotSize(), modulation);
+            
             if(requiredSlots>=100000)
                     continue OUTER;
             // Evaluate if each link have space to the required slots
@@ -224,12 +224,12 @@ public class EON_QFDDM implements RA{
         ArrayList<Flow> survivedFlows = cp.getMappedFlowsAsList();
         ///Step 1: For each existing/survived connection of set
         ///S(⊂C), degrade the bandwidth to one unit. 
-        
-        
 
         for (Flow f : survivedFlows) {
-
+            
+            
             if (f.isDegradeTolerant()) {
+               
                
                 cp.degradeFlow(f, /*f.getMaxDegradationNumber()*/ f.getMaxDegradationNumberEon());
 
@@ -264,7 +264,8 @@ public class EON_QFDDM implements RA{
         allFlows.addAll(interuptedFlows);
         allFlows.addAll(survivedFlows);
         ArrayList<Flow> flows = new ArrayList<Flow>();
-        flows.addAll(allFlows);
+        //flows.addAll(allFlows);
+        flows.addAll(interuptedFlows);
         
         Comparator<Flow> comparator = new Comparator<Flow>() {
             @Override
@@ -296,6 +297,7 @@ public class EON_QFDDM implements RA{
 
             Collections.sort(allFlows, comparator);
             Flow flow = allFlows.get(0);
+            
 
             /*System.out.println();
             for(Flow f:allFlows){
@@ -335,6 +337,7 @@ public class EON_QFDDM implements RA{
                         
                         allFlows.remove(flow);
                         if (flow.isDelayTolerant()) {
+                             
 
                             //Delay tolerant
                             cp.delayFlow(flow);
@@ -355,7 +358,9 @@ public class EON_QFDDM implements RA{
             }
 
         }
-        FileManager.writeCSV(flows);
+        System.out.println("**********Interrupted " + interuptedFlows.size());
+        System.out.println("**********Flowss " + flows.size());
+        FileManager.writeCSV(interuptedFlows);
         
     }
 

@@ -422,7 +422,7 @@ public class Flow {
     }
     
     public boolean isDelayTolerant(){
-        return ((int)this.getServiceInfo().getDelayTolerance()*10>0);
+        return (this.getServiceInfo().getDelayTolerance()*10>0);
     }
 
     /**

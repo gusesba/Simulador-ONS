@@ -21,21 +21,21 @@ import ons.ra.EON_QFDDM;
 public class FileManager {
     
     public static void writeCSV(ArrayList<Flow> flows) {
+        System.out.println("******Flows " + flows.size() + "*******");
         int r;
         double cost = 0;
         try {
-            FileWriter csvWriter = new FileWriter("simulations/simulation100.csv");
+            FileWriter csvWriter = new FileWriter("simulations/teste.csv");
+            FileWriter csvWriter2 = new FileWriter("simulations/teste2.csv");
+            csvWriter.append("slots demandados, arrival time, tempo faltante, class, degradação%, degradação, atraso%, atraso, custo, carga,path size, path size, path size, status,\n");
 
             for (Flow f : flows) {
                 ArrayList<Integer>[] paths = f.getPaths();
-                
-                
-                
+       
                 r = 0;
-                
                 csvWriter.append(f.getRequiredSlotsRestauration() + ","); //slots demandados
                 csvWriter.append(f.getTransmittedTime()+","); //Momento atual(disaster arrival) - arrival time
-                csvWriter.append((f.getHoldTime()-f.getTransmittedTime())+",");//Duration - Trasmited
+                csvWriter.append((((f.getTransmittedTime()/f.getTransmittedBw())*f.getBwReq())-f.getTransmittedTime())+",");//Duration - Trasmited
                 csvWriter.append(f.getCOS()+","); //Classe
                 csvWriter.append(f.getServiceInfo().getDegradationTolerance()+",");//Degradação %
                 csvWriter.append(f.getRate()*f.getServiceInfo().getDegradationTolerance() + ","); // Degradação banda
@@ -64,15 +64,44 @@ public class FileManager {
                for(ArrayList<Integer> path : paths){
                     csvWriter.append(path.size()+",");
                 }
-                if(f.isDropped()) r = 3;
-                else if(f.isIsDelayed()) r = 2;
-                else if(f.IsDegraded()) r = 1;
+               
+                r = 0;
+                if(f.isDropped()) r += 4;
+                if(f.isIsDelayed()) r += 2;
+                if(f.IsDegraded()) r += 1;
+                
+                
+                
                 csvWriter.append(r+"\n");
+                
+                
+                
+                   csvWriter2.append(paths[0].get(0)+",");
+                   csvWriter2.append(paths[0].get(paths[0].size()-1)+",");
+                   
+                   if(f.isDropped()){
+                       csvWriter2.append("0,");
+                   }else{
+                       csvWriter2.append("1,");
+                   }
+                   
+                   for(EONLightPath lps : usedLps){
+                       csvWriter2.append(lps.getFirstSlot() + ",");
+                       csvWriter2.append(lps.getLastSlot() + ",");
+                   }
+                   
+                   csvWriter2.append(f.getRequiredSlots() + ",");
+                  
+                   
+                
+                csvWriter2.append("\n");
                
     
             }
             csvWriter.flush();
             csvWriter.close();
+            csvWriter2.flush();
+            csvWriter2.close();
         } catch (IOException ex) {
             Logger.getLogger(EON_QFDDM.class.getName()).log(Level.SEVERE, null, ex);
         }
