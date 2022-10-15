@@ -246,6 +246,7 @@ public class TrafficGenerator {
                 time += dist3.nextExponential(meanArrivalTime);
                 event.setTime(time);
                 disasterArrival[count] = (float) time;
+                System.out.println("TimeTime | " + time);
                 events.addEvent(event);
                 event = new DisasterDepartureEvent(area);
                 //time += dist4.nextExponential(callsTypesInfo[type].getHoldingTime())*listLinks.getLength();//+10;
@@ -265,19 +266,20 @@ public class TrafficGenerator {
             }
             ServiceInfo serviceInfo = new ServiceInfo(servicesTypesInfo[qOsType].getServiceInfo(), servicesTypesInfo[qOsType].getDegradationTolerance(), servicesTypesInfo[qOsType].getDelayTolerance(), servicesTypesInfo[qOsType].getWeight());
             //System.out.println(serviceInfo.printInfo());
-            Flow flow = new Flow(id, src, dst, callsTypesInfo[type].getRate(), (float)maxRate, callsTypesInfo[type].getCOS(), serviceInfo);
+            //Flow flow = new Flow(id, src, dst, callsTypesInfo[type].getRate(), (float)maxRate, callsTypesInfo[type].getCOS(), serviceInfo);
+            Flow flow = new Flow(id, src, dst, callsTypesInfo[type].getRate(), (float)maxRate, qOsType, serviceInfo);
+   
             FlowArrivalEvent ArrivalEvent = new FlowArrivalEvent(flow);
             time += dist3.nextExponential(meanArrivalTime);                        
             ArrivalEvent.setTime(time);
             event = new FlowDepartureEvent(id,flow);
             event.setTime(time + dist4.nextExponential(callsTypesInfo[type].getHoldingTime()));            
-            events.addEvent(event);             
+            events.addEvent(event);
             flow.setDepartureEvent((FlowDepartureEvent) event);
             id++;
             flow.setArrivalEvent(ArrivalEvent);
             ArrivalEvent.setFlow(flow);
             events.addEvent(ArrivalEvent);  
-            //System.out.println("Holding time: " + (flow.getDepartureEvent().getTime() - flow.getArrivalEvent().getTime()));
                                    
         }
     }

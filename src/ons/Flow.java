@@ -6,6 +6,8 @@ package ons;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Flow class defines an object that can be thought of as a flow
@@ -38,6 +40,9 @@ public class Flow {
     private boolean dropped;
     private boolean interupted;
     private boolean degraded;
+    private double missingTime;
+    private Map<int[], Integer> percentage;
+    
     
 
     /**
@@ -158,10 +163,24 @@ public class Flow {
         DecimalFormat df = new DecimalFormat("0.00000000");        
         double flowAge = SimulationRunner.timer - arrivalEvent.getTime();
         double flowTimer = (departureEvent.getTime() - arrivalEvent.getTime());
+        
+        
         holdTime = SimulationRunner.timer;
         transmittedBw = flowAge*bwReq/flowTimer;
         droppedTraffic = this.getBwReq() -  flowAge*bwReq/flowTimer;
         
+    }
+    
+    public void updateMissingTime(){
+        
+        missingTime = departureEvent.getTime() - SimulationRunner.timer;
+        if(missingTime>100){
+            missingTime = 4.162735060177824;
+        }
+    }
+    
+    public double getMissingTime(){
+        return missingTime;
     }
     
     /**
@@ -576,5 +595,52 @@ public class Flow {
     public double getTransmittedTime() {
         return departureEvent.getTime() - arrivalEvent.getTime() ;
     }
+    
+    public void setPercentage(int[] pathLinks){
+        Map<int[],Integer> percentage2 = percentage;
+        if(percentage==null){
+            percentage = new HashMap<int[], Integer>();
+            
+        }
+        int exists = 0;
+        int newValue = 0;
+        int[] oldKey = new int[1];
+        for(Map.Entry<int[],Integer>entry:percentage.entrySet()){
+            int[] key = entry.getKey();
+            Integer value = entry.getValue();
+            
+            if(intListCompare(key,pathLinks)){
+                exists = 1;
+                newValue = value+1;
+                oldKey = key;
+            }
+        }
+        
+        if(exists == 0){
+            percentage.put(pathLinks, 1);
+        }
+        else{
+            percentage.remove(oldKey);
+            percentage.put(pathLinks,newValue);
+        }
+    }
+    
+    public Map<int[],Integer> getPercentage(){
+        return percentage;
+    }
+    
+    private boolean intListCompare(int[] a, int[] b){
+        
+        if(a.length != b.length)
+            return false;
+        
+        for(int i = 0; i<a.length; i++){
+            if(a[i]!=b[i])
+                return false;
+        }
+        return true;
+    }
+    
+   
     
 }

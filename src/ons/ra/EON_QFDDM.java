@@ -267,6 +267,10 @@ public class EON_QFDDM implements RA{
         //flows.addAll(allFlows);
         flows.addAll(interuptedFlows);
         
+        for(Flow f : interuptedFlows){
+            f.updateMissingTime();
+        }
+        
         Comparator<Flow> comparator = new Comparator<Flow>() {
             @Override
             public int compare(Flow t, Flow t1) {
@@ -358,8 +362,7 @@ public class EON_QFDDM implements RA{
             }
 
         }
-        System.out.println("**********Interrupted " + interuptedFlows.size());
-        System.out.println("**********Flowss " + flows.size());
+        
         FileManager.writeCSV(interuptedFlows);
         
     }

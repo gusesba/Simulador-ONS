@@ -547,7 +547,8 @@ public class ControlPlane implements ControlPlaneForRA { // RA is Routing Assign
 
             if (acceptFlow(f.getID(), lps)) {
                 f.getUsedLps().add((EONLightPath) lps[0]);                
-                f.upgradeFlow(1); 
+                f.upgradeFlow(1);
+                f.setPercentage(lps[0].links);
                 return true;
 
             } else {
@@ -573,10 +574,12 @@ public class ControlPlane implements ControlPlaneForRA { // RA is Routing Assign
             
             
             if(lps==null){
-                
+                int k = 0;
                 for(LightPath lp: path.getLightpaths()){
-                    
+                    k++;
                     EONLightPath elp = (EONLightPath)lp;
+                    
+                   
                     
                     /*double sizeRoute = 0;
                     for (int i = 0; i < elp.getLinks().length; i++) {               
@@ -604,7 +607,8 @@ public class ControlPlane implements ControlPlaneForRA { // RA is Routing Assign
                     //System.out.println("Precisa alocar  "+1000+"  e tem     "+elp.getBwAvailable());
                     if (elp.canAddFlowOnLightPath((int) f.getMaxRate())) {
                         elp.addFlowOnLightPath((int) f.getMaxRate());
-                        f.upgradeFlow(1);                        
+                        f.upgradeFlow(1);
+                        f.setPercentage(elp.links);
                         mappedFlows.replace(f, path);
                         f.getUsedLps().add(elp);                         
                         return true;
@@ -627,6 +631,7 @@ public class ControlPlane implements ControlPlaneForRA { // RA is Routing Assign
                     LightPath lp = lps[i];
                     if (getPT().canAddFlow(f, lp)) {
                         getPT().addFlow(f, lp);
+                        f.setPercentage(lp.links);
                         f.upgradeFlow(1);
                     } else {                        
                         return false;
@@ -663,6 +668,7 @@ public class ControlPlane implements ControlPlaneForRA { // RA is Routing Assign
                 if (getPT().canAddFlow(f, lp)) {
                     getPT().addFlow(f, lp);
                     f.upgradeFlow(1);
+                    f.setPercentage(lp.links);
                 } else {
 
                     return false;
