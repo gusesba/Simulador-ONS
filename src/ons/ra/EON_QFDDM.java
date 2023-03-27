@@ -62,7 +62,7 @@ public class EON_QFDDM implements RA{
         LightPath[] lps = new LightPath[1];
        /* ArrayList<Integer>[] paths = Ye nKSP.kShortestPaths(graph, flow.getSource(), flow.getDestination(), 3);
         flow.setPaths(paths);   */    
-       ArrayList<Integer>[] paths = YenKSP.kDisruptedShortestPaths(cp.getPT().getWeightedGraph(), flow.getSource(), flow.getDestination(), 3);
+       ArrayList<Integer>[] paths = YenKSP.kDisruptedShortestPaths(cp.getPT().getWeightedGraph(), flow.getSource(), flow.getDestination(), 10);
        flow.setPaths(paths);  
         
         //this.graph = this.getPostDisasterGraph(cp.getPT());
@@ -115,6 +115,8 @@ public class EON_QFDDM implements RA{
                     //Relative index modulation: BPSK = 0; QPSK = 1; 8QAM = 2; 16QAM = 3;
                     EONLightPath lp = cp.createCandidateEONLightPath(flow.getSource(), flow.getDestination(), links,
                             firstSlot[j], (firstSlot[j] + requiredSlots - 1), modulation);
+                    
+                    
                     // Now you try to establish the new lightpath, accept the call
                     if ((id = cp.getVT().createLightpath(lp)) >= 0) {
                         // Single-hop routing (end-to-end lightpath)
@@ -169,6 +171,7 @@ public class EON_QFDDM implements RA{
             for (int i = 0; i < links.length; i++) {               
                 sizeRoute += ((EONLink) cp.getPT().getLink(links[i])).getWeight();
             }
+            
             // Adaptative modulation:
             int modulation = Modulation.getBestModulation(sizeRoute);
 
@@ -224,7 +227,7 @@ public class EON_QFDDM implements RA{
         ArrayList<Flow> survivedFlows = cp.getMappedFlowsAsList();
         ///Step 1: For each existing/survived connection of set
         ///S(⊂C), degrade the bandwidth to one unit. 
-
+        
         for (Flow f : survivedFlows) {
             
             
@@ -232,10 +235,12 @@ public class EON_QFDDM implements RA{
                
                
                 cp.degradeFlow(f, /*f.getMaxDegradationNumber()*/ f.getMaxDegradationNumberEon());
-
+                System.out.println("-----------------------------");
+                System.out.println(cp.getPT());
             }
 
         }
+        
         
         //Step 2: For each disrupted connection of set D(⊂C), reprovision
         //it on the shortest available candidate
@@ -257,12 +262,21 @@ public class EON_QFDDM implements RA{
             }
 
         }*/
+        String nbr = "66";
+        FileManager.writeFlows(survivedFlows,"flowsSobreviventes"+nbr+".csv");
+        FileManager.writeFlows(interuptedFlows,"flowsInterrompidos"+nbr+".csv");
+        FileManager.writeVT(cp,nbr);
 
         //Step 3: Sort all connections of set H=(S∪D) in ascending
         //order of αc.        
         ArrayList<Flow> allFlows = new ArrayList<Flow>();
         allFlows.addAll(interuptedFlows);
         allFlows.addAll(survivedFlows);
+        
+        //FileManager.writeCSV(allFlows);
+        
+        
+        
         ArrayList<Flow> flows = new ArrayList<Flow>();
         //flows.addAll(allFlows);
         flows.addAll(interuptedFlows);
@@ -363,7 +377,7 @@ public class EON_QFDDM implements RA{
 
         }
         
-        FileManager.writeCSV(interuptedFlows);
+        //FileManager.writeCSV(interuptedFlows);
         
     }
 

@@ -8,12 +8,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ons.EONLightPath;
 import ons.Flow;
+import ons.LightPath;
+import ons.Path;
 import ons.TrafficGenerator;
 import ons.ra.EON_QFDDM;
+import java.util.Iterator;
+import ons.ra.ControlPlaneForRA;
 
 /**
  *
@@ -28,7 +33,7 @@ public class FileManager {
         try {
             
             //Abre os arquivos csv
-            FileWriter csvWriter = new FileWriter("simulations/simulation100.csv");
+            FileWriter csvWriter = new FileWriter("simulations/testez.csv");
             FileWriter csvWriter2 = new FileWriter("simulations/teste2.csv");
             FileWriter csvWriter3 = new FileWriter("simulations/teste3.csv");
             
@@ -130,6 +135,8 @@ public class FileManager {
                     
                 //}
                 
+             csvWriter2.append(usedLps+",");
+                
                 
                 
                 
@@ -149,6 +156,105 @@ public class FileManager {
             csvWriter3.close();
             
         } catch (IOException ex) {
+            Logger.getLogger(EON_QFDDM.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public static void writeFlows(ArrayList<Flow> flows, String name) {
+        
+        
+        try{
+        
+        FileWriter csvWriter = new FileWriter("simulations2/"+name);
+        
+        for (Flow flow : flows) {
+            
+            csvWriter.append(TrafficGenerator.getLoad()+",");
+            csvWriter.append(flow.getID() + ",");
+            csvWriter.append(flow.getSource() + ",");
+            csvWriter.append(flow.getDestination() + ",");
+            csvWriter.append(flow.getRate() + ",");
+            csvWriter.append(flow.getBwReq() + ",");
+            csvWriter.append(flow.getDuration() + ",");
+            csvWriter.append(flow.getCOS() + ",");
+            csvWriter.append(flow.getMaxRate() + ",");
+            csvWriter.append(flow.getNumWave() + ",");
+            csvWriter.append(flow.getNumWavesInUse() + ",");
+            ArrayList<Integer>[] paths = flow.getPaths();
+            
+            for(int j = 0; j < paths.length; j++){
+                csvWriter.append(paths[j].toString().replace(", ", "-"));
+                if(j<paths.length-1) csvWriter.append("-");
+            }
+            csvWriter.append(",");
+            csvWriter.append(flow.getServiceInfo().getDegradationTolerance()+",");
+            csvWriter.append(flow.getServiceInfo().getDelayTolerance()+",");
+            csvWriter.append(flow.getServiceInfo().getWeight()+",");
+            csvWriter.append(flow.getDroppedTraffic() + ",");
+            csvWriter.append(flow.getTransmittedBw() + ",");
+            csvWriter.append(flow.getTransmittedBw() + ",");
+            csvWriter.append(flow.getHoldTime() + ",");
+            csvWriter.append(flow.IsDegraded() + ",");
+            csvWriter.append(flow.getModulation() + ",");
+            csvWriter.append(flow.getModulation() + ",");
+            csvWriter.append(flow.isDropped() + ",");
+            csvWriter.append(flow.isInterupted() + ",");
+            csvWriter.append(flow.IsDegraded() + ",");
+            csvWriter.append(flow.getMissingTime() + ",");
+            
+            csvWriter.append("\n");
+            
+            
+            
+        }
+        csvWriter.flush();
+        csvWriter.close();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(EON_QFDDM.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public static void writeVT(ControlPlaneForRA cp, String nbr) {
+        
+        
+        try{
+            FileWriter csvWriter = new FileWriter("simulations2/VT"+nbr+".csv");
+            
+            TreeSet<LightPath>[][] adjMatrix = cp.getVT().getAdjMatrix();
+            
+            for(int i = 0; i < adjMatrix.length; i++){
+                for(int j = 0; j<adjMatrix[i].length; j++){
+                    if(adjMatrix[i][j] == null) continue;
+                    
+                    Iterator<LightPath> value = adjMatrix[i][j].iterator();
+                    while (value.hasNext()) {
+                       EONLightPath lp = (EONLightPath)value.next();
+                       csvWriter.append(lp.getID() + ",");
+                       csvWriter.append(lp.getSource() + ",");
+                       csvWriter.append(lp.getDestination() + ",");
+                       csvWriter.append(cp.getVT().getLightpathBWAvailable(lp.getID()) + ",");
+                       int[] links = lp.getLinks();
+                       for(int m = 0; m<links.length-1;m++){
+                           csvWriter.append(links[m]+"-");
+                       }
+                       csvWriter.append(links[links.length-1]+",");
+                       csvWriter.append(lp.getFirstSlot()+",");
+                       csvWriter.append(lp.getLastSlot()+",");
+                       
+                       
+                       
+                       csvWriter.append("\n");
+                    }
+                    
+                }
+                
+            }
+            
+        csvWriter.flush();
+        csvWriter.close();
+            
+        }catch (IOException ex) {
             Logger.getLogger(EON_QFDDM.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
