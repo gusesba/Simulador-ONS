@@ -18,6 +18,9 @@ import ons.Path;
 import ons.TrafficGenerator;
 import ons.ra.EON_QFDDM;
 import java.util.Iterator;
+import ons.EONLink;
+import ons.EONPhysicalTopology;
+import ons.Link;
 import ons.ra.ControlPlaneForRA;
 
 /**
@@ -167,19 +170,25 @@ public class FileManager {
         
         FileWriter csvWriter = new FileWriter("simulations2/"+name);
         
+        csvWriter.append("ID,Carga na Rede, Nó Fonte, Nó Destino, Rate, Largura de banda total, Largura de banda para restauração,Banda total, Banda transmitida, Tempo total para transmissão, Tempo transmitido, Tempo restante para transmissão, Classe, Total de slots, Slots necessários para restauração, Caminhos, Degradação%, Delay%, Delay, Weight, Modulation \n");
+        
         for (Flow flow : flows) {
             
+            csvWriter.append(flow.getID() + ","); 
             csvWriter.append(TrafficGenerator.getLoad()+",");
-            csvWriter.append(flow.getID() + ",");
             csvWriter.append(flow.getSource() + ",");
             csvWriter.append(flow.getDestination() + ",");
             csvWriter.append(flow.getRate() + ",");
             csvWriter.append(flow.getBwReq() + ",");
-            csvWriter.append(flow.getDuration() + ",");
+            csvWriter.append(flow.getBwReqRestauration() + ",");
+            csvWriter.append(flow.getTotalBand()+",");
+            csvWriter.append(flow.getTransmittedBw2()+",");
+            csvWriter.append(flow.getDuration2() + ",");
+            csvWriter.append(flow.getTransmittedTime2() + ",");
+            csvWriter.append(flow.getMissingTime2() + ",");
             csvWriter.append(flow.getCOS() + ",");
-            csvWriter.append(flow.getMaxRate() + ",");
-            csvWriter.append(flow.getNumWave() + ",");
-            csvWriter.append(flow.getNumWavesInUse() + ",");
+            csvWriter.append(flow.getRequiredSlots2()+",");
+            csvWriter.append(flow.getRequiredSlotsRestauration2()+",");
             ArrayList<Integer>[] paths = flow.getPaths();
             
             for(int j = 0; j < paths.length; j++){
@@ -189,19 +198,11 @@ public class FileManager {
             csvWriter.append(",");
             csvWriter.append(flow.getServiceInfo().getDegradationTolerance()+",");
             csvWriter.append(flow.getServiceInfo().getDelayTolerance()+",");
-            csvWriter.append(flow.getServiceInfo().getWeight()+",");
-            csvWriter.append(flow.getDroppedTraffic() + ",");
-            csvWriter.append(flow.getTransmittedBw() + ",");
-            csvWriter.append(flow.getTransmittedBw() + ",");
-            csvWriter.append(flow.getHoldTime() + ",");
-            csvWriter.append(flow.IsDegraded() + ",");
-            csvWriter.append(flow.getModulation() + ",");
-            csvWriter.append(flow.getModulation() + ",");
-            csvWriter.append(flow.isDropped() + ",");
-            csvWriter.append(flow.isInterupted() + ",");
-            csvWriter.append(flow.IsDegraded() + ",");
-            csvWriter.append(flow.getMissingTime() + ",");
+            csvWriter.append(flow.getServiceInfo().getDelayTolerance()*flow.getMissingTime2()+",");
             
+            csvWriter.append(flow.getServiceInfo().getWeight()+",");
+            csvWriter.append(flow.getModulation() + ",");
+                     
             csvWriter.append("\n");
             
             
@@ -241,6 +242,12 @@ public class FileManager {
                        csvWriter.append(links[links.length-1]+",");
                        csvWriter.append(lp.getFirstSlot()+",");
                        csvWriter.append(lp.getLastSlot()+",");
+                       csvWriter.append(lp.getSlots()+",");
+                       csvWriter.append(lp.getBwAvailable()+",");
+                       csvWriter.append(lp.getBw()+",");
+                       
+                       
+                       
                        
                        
                        
@@ -253,6 +260,37 @@ public class FileManager {
             
         csvWriter.flush();
         csvWriter.close();
+            
+        }catch (IOException ex) {
+            Logger.getLogger(EON_QFDDM.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try{
+            FileWriter csvWriter = new FileWriter("simulations2/PT"+nbr+".csv");
+            Link[][] adjMatrix = cp.getPT().getAdjMatrix();
+            for(int i = 0; i < adjMatrix.length; i++){
+                for(int j = 0; j<adjMatrix[i].length; j++){
+                    if(adjMatrix[i][j] == null) continue;
+                    EONLink link = (EONLink) adjMatrix[i][j];
+                    
+                    csvWriter.append(link.getSource()+",");
+                    csvWriter.append(link.getDestination()+",");
+                    
+                    int[] slots = link.getSlotsAvailableToArray(1);
+                    
+                    csvWriter.append(slots.length+",");
+                    
+                    for(int k = 0; k<slots.length; k++){
+                       csvWriter.append(slots[k] + "-"); 
+                    }
+                    
+                    csvWriter.append("\n");
+                    
+                }
+            }
+            
+            csvWriter.flush();
+            csvWriter.close();
             
         }catch (IOException ex) {
             Logger.getLogger(EON_QFDDM.class.getName()).log(Level.SEVERE, null, ex);

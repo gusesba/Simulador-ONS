@@ -171,6 +171,8 @@ public class Flow {
         
     }
     
+    
+    
     public void updateMissingTime(){
         
         missingTime = departureEvent.getTime() - SimulationRunner.timer;
@@ -309,6 +311,20 @@ public class Flow {
     public int getDuration() {
         return duration;
     }
+    
+    public double getDuration2() {
+        return departureEvent.getTime() - arrivalEvent.getTime();
+    }
+    
+    public double getTransmittedTime2() {
+        return SimulationRunner.timer - arrivalEvent.getTime();
+    }
+    
+    public double getMissingTime2() {
+     return (getDuration2() - getTransmittedTime2())/(1-serviceInfo.getDegradationTolerance());   
+    }
+    
+    
     
     /**
      * Retrieves a given Flow's "class of service".
@@ -471,6 +487,12 @@ public class Flow {
         return requiredSlots;
     }
     
+    public int getRequiredSlots2(){
+        int requiredSlots = Modulation.convertRateToSlot((int) (this.bwReq), EONPhysicalTopology.getSlotSize(), this.modulation);
+       
+        return requiredSlots;
+    }
+    
     public int getRequiredSlots(){
         int requiredSlots = Modulation.convertRateToSlot((int) (this.serviceInfo.getDegradationTolerance()), EONPhysicalTopology.getSlotSize(), this.modulation);
         System.out.println(requiredSlots);
@@ -485,12 +507,30 @@ public class Flow {
         return requiredSlots;
     }
     
+    public int getRequiredSlotsRestauration2(){
+        int requiredSlots = Modulation.convertRateToSlot((int) Math.ceil((this.bwReq)*(1-serviceInfo.getDegradationTolerance())), EONPhysicalTopology.getSlotSize(), this.modulation);
+        return requiredSlots;
+    }
+    
+    public double getBwReqRestauration(){
+        double bwreq = (this.bwReq)*(1-serviceInfo.getDegradationTolerance());
+        return bwreq;
+    }
+    
 
     /**
      * @return the transmittedBw
      */
     public double getTransmittedBw() {
         return transmittedBw;
+    }
+    
+    public double getTotalBand() {
+        return getDuration2()*bwReq;
+    }
+    
+    public double getTransmittedBw2() {
+        return getTransmittedTime2()*bwReq;
     }
 
     /**
