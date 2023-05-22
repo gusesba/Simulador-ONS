@@ -22,12 +22,47 @@ import ons.EONLink;
 import ons.EONPhysicalTopology;
 import ons.Link;
 import ons.ra.ControlPlaneForRA;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  *
  * @author gusta
  */
 public class FileManager {
+    
+    public static void changeLoad(int load) {
+        try {
+            // Carrega o arquivo XML
+            File arquivoXML = new File("xml/diffrm_testes.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document documento = dBuilder.parse(arquivoXML);
+
+            // Localiza o elemento que contém o atributo "load"
+            Element elementoTraffic = (Element) documento.getElementsByTagName("traffic").item(0);
+            elementoTraffic.setAttribute("load", load + "");
+
+            // Salva as alterações no arquivo XML
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(documento);
+            StreamResult result = new StreamResult(arquivoXML);
+            transformer.transform(source, result);
+
+            System.out.println("Alterações feitas com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     
     public static void writeCSV(ArrayList<Flow> flows) {
       
@@ -193,7 +228,7 @@ public class FileManager {
             
             for(int j = 0; j < paths.length; j++){
                 csvWriter.append(paths[j].toString().replace(", ", "-"));
-                if(j<paths.length-1) csvWriter.append("-");
+                if(j<paths.length-1) csvWriter.append(";");
             }
             csvWriter.append(",");
             csvWriter.append(flow.getServiceInfo().getDegradationTolerance()+",");
@@ -237,7 +272,7 @@ public class FileManager {
                        csvWriter.append(cp.getVT().getLightpathBWAvailable(lp.getID()) + ",");
                        int[] links = lp.getLinks();
                        for(int m = 0; m<links.length-1;m++){
-                           csvWriter.append(links[m]+"-");
+                           csvWriter.append(links[m]+";");
                        }
                        csvWriter.append(links[links.length-1]+",");
                        csvWriter.append(lp.getFirstSlot()+",");
@@ -281,7 +316,7 @@ public class FileManager {
                     csvWriter.append(slots.length+",");
                     
                     for(int k = 0; k<slots.length; k++){
-                       csvWriter.append(slots[k] + "-"); 
+                       csvWriter.append(slots[k] + ";"); 
                     }
                     
                     csvWriter.append("\n");

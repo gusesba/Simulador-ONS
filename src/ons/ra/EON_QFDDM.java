@@ -20,6 +20,7 @@ import ons.util.Dijkstra;
 import ons.util.FileManager;
 import ons.util.WeightedGraph;
 import ons.util.YenKSP;
+import ons.Main;
 
 /**
  *
@@ -262,10 +263,10 @@ public class EON_QFDDM implements RA{
             }
 
         }*/
-        String nbr = "66";
-        FileManager.writeFlows(survivedFlows,"flowsSobreviventes"+nbr+".csv");
-        FileManager.writeFlows(interuptedFlows,"flowsInterrompidos"+nbr+".csv");
-        FileManager.writeVT(cp,nbr);
+        
+        FileManager.writeFlows(survivedFlows,"flowsSobreviventes"+Main.numSim+".csv");
+        FileManager.writeFlows(interuptedFlows,"flowsInterrompidos"+Main.numSim+".csv");
+        FileManager.writeVT(cp,Main.numSim+"");
 
         //Step 3: Sort all connections of set H=(S∪D) in ascending
         //order of αc.        

@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import ons.util.FileManager;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,7 +35,28 @@ public class Main {
      * 
      * @param args the command line arguments
      */
+    public static int totSim = 100;
+    public static int numSim = 0;
+    public static int load = 30;
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
+        
+        
+        String[] newArgs = new String[args.length - 1];
+        System.arraycopy(args, 1, newArgs, 0, newArgs.length);
+        
+        while(numSim<totSim){
+            if(numSim%(totSim/10) == 0){
+                load+=20;
+                FileManager.changeLoad(load);
+            }
+            execute(newArgs);
+            numSim++;
+        }
+        
+        
+    }
+        
+    public static void execute(String[] args) throws ParserConfigurationException, SAXException, IOException {
        
         Simulator wdm;
         String usage = "Usage: ONS simulation_file seed numSeed [-trace] [-verbose] [minload maxload step]";
@@ -105,5 +127,5 @@ public class Main {
             
         } 
         
-    }
+    };
 }
